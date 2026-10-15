@@ -3,9 +3,12 @@ import { useImageSource } from '@/composables/useImageSource'
 import { tools } from '@/tools'
 import ConvertView from '@/views/ConvertView.vue'
 import CropView from '@/views/CropView.vue'
+import DocsView from '@/views/DocsView.vue'
 import EnhanceView from '@/views/EnhanceView.vue'
+import PrivacyView from '@/views/PrivacyView.vue'
 import ResizeView from '@/views/ResizeView.vue'
 import RotateView from '@/views/RotateView.vue'
+import TermsView from '@/views/TermsView.vue'
 import WatermarkView from '@/views/WatermarkView.vue'
 
 const { commitDraft } = useImageSource()
@@ -29,6 +32,24 @@ const router = createRouter({
       component: views[tool.name],
       meta: { title: tool.title, label: tool.label },
     })),
+    {
+      path: '/docs',
+      name: 'docs',
+      component: DocsView,
+      meta: { title: 'How to Use', isInfo: true },
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: TermsView,
+      meta: { title: 'Terms of Service', isInfo: true },
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: PrivacyView,
+      meta: { title: 'Privacy Policy', isInfo: true },
+    },
   ],
   scrollBehavior() {
     return { top: 0 }
