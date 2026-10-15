@@ -13,4 +13,4 @@ Routes:
 - `/resize`
 - `/enhance`
 
-Features: batch ZIP export, target file size, before/after compare, dark mode, PWA.
+Features: JPEG / PNG / WebP / AVIF convert, batch ZIP export, target file size, before/after compare, dark mode, PWA.

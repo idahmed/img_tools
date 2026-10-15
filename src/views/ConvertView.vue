@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import CompareSlider from '@/components/CompareSlider.vue'
 import CrossToolLinks from '@/components/CrossToolLinks.vue'
 import DropZone from '@/components/DropZone.vue'
@@ -10,7 +10,8 @@ import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import { downloadZip } from '@/lib/batch'
 import {
-  FORMATS,
+  BASE_FORMATS,
+  availableFormats,
   canvasToBlob,
   copyBlob,
   downloadBlob,
@@ -34,6 +35,7 @@ const {
   clear,
 } = useImageSource()
 
+const formats = ref([...BASE_FORMATS])
 const format = ref('image/jpeg')
 const quality = ref(0.9)
 const useTarget = ref(false)
@@ -60,10 +62,14 @@ const showQuality = computed(
 )
 
 const seoPoints = [
-  'Convert PNG, JPG, and WebP without uploading files to a server.',
-  'Lower JPEG/WebP quality to shrink file size for the web or email.',
+  'Convert PNG, JPG, WebP, and AVIF without uploading files to a server.',
+  'Lower JPEG/WebP/AVIF quality to shrink file size for the web or email.',
   'Metadata is removed when images are re-encoded in your browser.',
 ]
+
+onMounted(async () => {
+  formats.value = await availableFormats()
+})
 
 let previewTimer
 
@@ -194,7 +200,7 @@ async function downloadAll() {
         <label class="field">
           <span>Format</span>
           <select v-model="format">
-            <option v-for="item in FORMATS" :key="item.id" :value="item.id">
+            <option v-for="item in formats" :key="item.id" :value="item.id">
               {{ item.label }}
             </option>
           </select>

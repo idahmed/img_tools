@@ -169,12 +169,43 @@ export async function copyBlob(blob) {
   await navigator.clipboard.write([new ClipboardItem({ [type]: blob })])
 }
 
-export const FORMATS = [
+export const BASE_FORMATS = [
   { id: 'image/jpeg', label: 'JPEG', ext: 'jpg' },
   { id: 'image/png', label: 'PNG', ext: 'png' },
   { id: 'image/webp', label: 'WebP', ext: 'webp' },
 ]
 
+const EXTRA_FORMATS = [
+  { id: 'image/avif', label: 'AVIF', ext: 'avif' },
+]
+
+let cachedFormats
+
+function canEncode(type) {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 1
+    canvas.height = 1
+    canvas.toBlob(
+      (blob) => resolve(!!blob && blob.type === type),
+      type,
+      0.5,
+    )
+  })
+}
+
+/** Formats this browser can encode (AVIF only when supported). */
+export async function availableFormats() {
+  if (cachedFormats) return cachedFormats
+  const list = [...BASE_FORMATS]
+  if (await canEncode('image/avif')) list.push(EXTRA_FORMATS[0])
+  cachedFormats = list
+  return list
+}
+
 export function extFor(type) {
-  return FORMATS.find((item) => item.id === type)?.ext || 'img'
+  return (
+    [...BASE_FORMATS, ...EXTRA_FORMATS].find((item) => item.id === type)?.ext
+    || 'img'
+  )
 }
