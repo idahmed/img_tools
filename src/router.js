@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useImageSource } from '@/composables/useImageSource'
+import { useSeo } from '@/composables/useSeo'
 import { tools } from '@/tools'
 import ConvertView from '@/views/ConvertView.vue'
 import CropView from '@/views/CropView.vue'
@@ -12,6 +13,7 @@ import TermsView from '@/views/TermsView.vue'
 import WatermarkView from '@/views/WatermarkView.vue'
 
 const { commitDraft } = useImageSource()
+const { setPageSeo } = useSeo()
 
 const views = {
   convert: ConvertView,
@@ -30,25 +32,44 @@ const router = createRouter({
       path: tool.path,
       name: tool.name,
       component: views[tool.name],
-      meta: { title: tool.title, label: tool.label },
+      meta: {
+        title: tool.title,
+        description: tool.description,
+        label: tool.label,
+      },
     })),
     {
       path: '/docs',
       name: 'docs',
       component: DocsView,
-      meta: { title: 'How to Use', isInfo: true },
+      meta: {
+        title: 'How to Use Image Tools - User Guide',
+        description:
+          'Learn how to use our free browser-based image tools. Complete guide for converting, resizing, cropping, rotating, enhancing, and watermarking images.',
+        isInfo: true,
+      },
     },
     {
       path: '/terms',
       name: 'terms',
       component: TermsView,
-      meta: { title: 'Terms of Service', isInfo: true },
+      meta: {
+        title: 'Terms of Service',
+        description:
+          'Terms of service for sessea Image Tools. Read about usage terms, user responsibilities, and third-party advertising.',
+        isInfo: true,
+      },
     },
     {
       path: '/privacy',
       name: 'privacy',
       component: PrivacyView,
-      meta: { title: 'Privacy Policy', isInfo: true },
+      meta: {
+        title: 'Privacy Policy',
+        description:
+          'Privacy policy for sessea Image Tools. We do not collect personal data. All image processing happens locally in your browser.',
+        isInfo: true,
+      },
     },
   ],
   scrollBehavior() {
@@ -61,7 +82,13 @@ router.beforeEach(async (to, from) => {
 })
 
 router.afterEach((to) => {
-  document.title = `${to.meta.title || 'Image tools'} by sessea`
+  setPageSeo({
+    title: to.meta.title || 'Free Online Image Tools',
+    description:
+      to.meta.description ||
+      'Free browser-based image tools. Convert, resize, crop, rotate, enhance and watermark images instantly. No uploads required.',
+    path: to.path,
+  })
 })
 
 export default router
