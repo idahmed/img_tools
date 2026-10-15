@@ -11,11 +11,9 @@ import { useImageSource } from '@/composables/useImageSource'
 import { downloadZip } from '@/lib/batch'
 import {
   canvasToBlob,
-  copyBlob,
   downloadBlob,
   extFor,
   formatBytes,
-  openBlob,
   renderImage,
   resizeToTarget,
 } from '@/lib/image'
@@ -27,7 +25,8 @@ const {
   count,
   error,
   addFiles,
-  replaceFile,
+  setDraft,
+  clearDraft,
   select,
   removeCurrent,
   clear,
@@ -46,6 +45,9 @@ const resultSize = ref(0)
 const resultBlob = ref(null)
 const outWidth = ref(0)
 const outHeight = ref(0)
+
+let alive = true
+let previewTimer
 
 const exportType = computed(() => {
   if (!source.value) return 'image/jpeg'
@@ -68,8 +70,6 @@ const seoPoints = [
   'Use target file size when you need an image under a KB limit.',
 ]
 
-let previewTimer
-
 watch(source, (value) => {
   revokeResult()
   if (!value) return
@@ -84,6 +84,7 @@ watch([width, height, quality, useTarget, targetKb, source], () => {
 })
 
 onUnmounted(() => {
+  alive = false
   clearTimeout(previewTimer)
   revokeResult()
 })
@@ -93,6 +94,7 @@ function revokeResult() {
   resultUrl.value = ''
   resultSize.value = 0
   resultBlob.value = null
+  clearDraft()
 }
 
 function onWidth(value) {
@@ -141,40 +143,29 @@ async function updatePreview() {
   status.value = ''
   try {
     const result = await buildResult(source.value)
-    revokeResult()
+    if (!alive) return
+    if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
     resultBlob.value = result.blob
     resultUrl.value = URL.createObjectURL(result.blob)
     resultSize.value = result.blob.size
     outWidth.value = result.width
     outHeight.value = result.height
+    setDraft(result.blob, source.value.name)
   } catch {
+    if (!alive) return
     revokeResult()
     status.value = 'Could not process image.'
   } finally {
-    busy.value = false
+    if (alive) busy.value = false
   }
 }
 
-async function download() {
+function download() {
   if (!source.value || !resultBlob.value) return
   downloadBlob(
     resultBlob.value,
     `${source.value.name}-${outWidth.value}x${outHeight.value}.${extFor(resultBlob.value.type || exportType.value)}`,
   )
-}
-
-async function copy() {
-  if (!resultBlob.value) return
-  try {
-    await copyBlob(resultBlob.value)
-    status.value = 'Copied to clipboard.'
-  } catch {
-    status.value = 'Copy is not supported in this browser.'
-  }
-}
-
-function openResult() {
-  if (resultBlob.value) openBlob(resultBlob.value)
 }
 
 async function downloadAll() {
@@ -279,14 +270,7 @@ async function downloadAll() {
           <input v-model.number="quality" type="range" min="0.4" max="1" step="0.01">
         </label>
 
-        <ResultBar
-          :busy="busy"
-          @download="download"
-          @copy="copy"
-          @open="openResult"
-          @replace="replaceFile"
-          @clear="clear"
-        />
+        <ResultBar :busy="busy" @download="download" @clear="clear" />
 
         <button
           v-if="count > 1"

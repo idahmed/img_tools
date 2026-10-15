@@ -10,13 +10,11 @@ import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import {
   canvasToBlob,
-  copyBlob,
   cropImage,
   downloadBlob,
   exportTypeFor,
   extFor,
   formatBytes,
-  openBlob,
 } from '@/lib/image'
 
 const {
@@ -25,7 +23,8 @@ const {
   source,
   error,
   addFiles,
-  replaceFile,
+  setDraft,
+  clearDraft,
   select,
   removeCurrent,
   clear,
@@ -43,6 +42,9 @@ const resultSize = ref(0)
 const resultBlob = ref(null)
 const outLabel = ref('')
 
+let alive = true
+let timer
+
 const originalMeta = computed(() => {
   if (!source.value) return ''
   return `${source.value.width}×${source.value.height} · ${formatBytes(source.value.size)}`
@@ -58,8 +60,6 @@ const seoPoints = [
   'Use aspect presets for square, 4:3, or 16:9 frames.',
   'Everything runs locally in your browser.',
 ]
-
-let timer
 
 watch(source, () => {
   left.value = 0
@@ -79,6 +79,7 @@ watch([source, left, top, right, bottom, aspect], () => {
 })
 
 onUnmounted(() => {
+  alive = false
   clearTimeout(timer)
   revokeResult()
 })
@@ -89,6 +90,7 @@ function revokeResult() {
   resultSize.value = 0
   resultBlob.value = null
   outLabel.value = ''
+  clearDraft()
 }
 
 function cropBox(item) {
@@ -104,8 +106,8 @@ function cropBox(item) {
 
   if (aspect.value !== 'free') {
     const ratio = aspect.value === '1:1' ? 1 : aspect.value === '4:3' ? 4 / 3 : 16 / 9
-    const current = width / height
-    if (current > ratio) {
+    const currentRatio = width / height
+    if (currentRatio > ratio) {
       const next = Math.max(1, Math.round(height * ratio))
       x += Math.floor((width - next) / 2)
       width = next
@@ -128,16 +130,19 @@ async function updatePreview() {
     const canvas = cropImage(source.value, box)
     const type = exportTypeFor(source.value)
     const blob = await canvasToBlob(canvas, type, 0.92)
+    if (!alive) return
     if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
     resultBlob.value = blob
     resultUrl.value = URL.createObjectURL(blob)
     resultSize.value = blob.size
     outLabel.value = `${canvas.width}×${canvas.height}`
+    setDraft(blob, source.value.name)
   } catch {
+    if (!alive) return
     revokeResult()
     status.value = 'Could not crop image.'
   } finally {
-    busy.value = false
+    if (alive) busy.value = false
   }
 }
 
@@ -146,25 +151,12 @@ async function download() {
   busy.value = true
   try {
     const type = exportTypeFor(source.value)
-    const blob = resultBlob.value || (await canvasToBlob(cropImage(source.value, cropBox(source.value)), type, 0.92))
+    const blob = resultBlob.value
+      || (await canvasToBlob(cropImage(source.value, cropBox(source.value)), type, 0.92))
     downloadBlob(blob, `${source.value.name}-crop.${extFor(type)}`)
   } finally {
     busy.value = false
   }
-}
-
-async function copy() {
-  if (!resultBlob.value) return
-  try {
-    await copyBlob(resultBlob.value)
-    status.value = 'Copied to clipboard.'
-  } catch {
-    status.value = 'Copy is not supported in this browser.'
-  }
-}
-
-function openResult() {
-  if (resultBlob.value) openBlob(resultBlob.value)
 }
 </script>
 
@@ -233,14 +225,7 @@ function openResult() {
           </label>
         </div>
 
-        <ResultBar
-          :busy="busy"
-          @download="download"
-          @copy="copy"
-          @open="openResult"
-          @replace="replaceFile"
-          @clear="clear"
-        />
+        <ResultBar :busy="busy" @download="download" @clear="clear" />
         <CrossToolLinks />
         <p v-if="status" class="status">{{ status }}</p>
       </div>

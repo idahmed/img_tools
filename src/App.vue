@@ -8,7 +8,7 @@ import { tools } from '@/tools'
 
 const route = useRoute()
 const router = useRouter()
-const { clear, addFiles } = useImageSource()
+const { clear, addFiles, undo, canUndo } = useImageSource()
 const theme = ref(loadTheme())
 const isDark = computed(() => theme.value === 'dark')
 const activePath = computed(() => route.path)
@@ -25,9 +25,16 @@ function toggleTheme() {
 }
 
 function onKeydown(event) {
-  if (event.metaKey || event.ctrlKey || event.altKey) return
   const tag = document.activeElement?.tagName
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
+
+  if (event.key.toLowerCase() === 'z' && !event.altKey && !event.shiftKey) {
+    if (event.metaKey || event.ctrlKey) event.preventDefault()
+    if (canUndo.value) undo()
+    return
+  }
+
+  if (event.metaKey || event.ctrlKey || event.altKey) return
 
   const match = tools.find((tool) => tool.shortcut === event.key)
   if (match) router.push(match.path)
@@ -93,7 +100,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         </nav>
 
         <p class="tips">
-          Shortcuts: 1–6 tools · O Open · Esc Clear
+          Shortcuts: 1–6 tools · O Open · Z Undo · Esc Clear
         </p>
 
         <RouterView />

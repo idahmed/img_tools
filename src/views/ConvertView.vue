@@ -13,12 +13,10 @@ import {
   BASE_FORMATS,
   availableFormats,
   canvasToBlob,
-  copyBlob,
   downloadBlob,
   encodeToTarget,
   extFor,
   formatBytes,
-  openBlob,
   renderImage,
 } from '@/lib/image'
 import { loadPrefs, savePrefs } from '@/lib/prefs'
@@ -30,7 +28,8 @@ const {
   count,
   error,
   addFiles,
-  replaceFile,
+  setDraft,
+  clearDraft,
   select,
   removeCurrent,
   clear,
@@ -48,6 +47,9 @@ const status = ref('')
 const resultUrl = ref('')
 const resultSize = ref(0)
 const resultBlob = ref(null)
+
+let alive = true
+let previewTimer
 
 const originalMeta = computed(() => {
   if (!source.value) return ''
@@ -76,8 +78,6 @@ onMounted(async () => {
   }
 })
 
-let previewTimer
-
 watch([format, quality, useTarget, targetKb, stripMeta], () => {
   savePrefs({
     format: format.value,
@@ -98,6 +98,7 @@ watch([source, format, quality, useTarget, targetKb, stripMeta], () => {
 })
 
 onUnmounted(() => {
+  alive = false
   clearTimeout(previewTimer)
   revokeResult()
 })
@@ -107,6 +108,7 @@ function revokeResult() {
   resultUrl.value = ''
   resultSize.value = 0
   resultBlob.value = null
+  clearDraft()
 }
 
 async function buildBlob(item) {
@@ -126,15 +128,18 @@ async function updatePreview() {
   status.value = ''
   try {
     const blob = await buildBlob(source.value)
-    revokeResult()
+    if (!alive) return
+    if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
     resultBlob.value = blob
     resultUrl.value = URL.createObjectURL(blob)
     resultSize.value = blob.size
+    setDraft(blob, source.value.name)
   } catch {
+    if (!alive) return
     revokeResult()
     status.value = 'Could not process image.'
   } finally {
-    busy.value = false
+    if (alive) busy.value = false
   }
 }
 
@@ -147,20 +152,6 @@ async function download() {
   } finally {
     busy.value = false
   }
-}
-
-async function copy() {
-  if (!resultBlob.value) return
-  try {
-    await copyBlob(resultBlob.value)
-    status.value = 'Copied to clipboard.'
-  } catch {
-    status.value = 'Copy is not supported in this browser.'
-  }
-}
-
-function openResult() {
-  if (resultBlob.value) openBlob(resultBlob.value)
 }
 
 async function downloadAll() {
@@ -241,14 +232,7 @@ async function downloadAll() {
           <span>Strip metadata (recommended)</span>
         </label>
 
-        <ResultBar
-          :busy="busy"
-          @download="download"
-          @copy="copy"
-          @open="openResult"
-          @replace="replaceFile"
-          @clear="clear"
-        />
+        <ResultBar :busy="busy" @download="download" @clear="clear" />
 
         <button
           v-if="count > 1"

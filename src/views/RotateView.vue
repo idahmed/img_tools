@@ -10,12 +10,10 @@ import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import {
   canvasToBlob,
-  copyBlob,
   downloadBlob,
   exportTypeFor,
   extFor,
   formatBytes,
-  openBlob,
   transformImage,
 } from '@/lib/image'
 
@@ -25,7 +23,8 @@ const {
   source,
   error,
   addFiles,
-  replaceFile,
+  setDraft,
+  clearDraft,
   select,
   removeCurrent,
   clear,
@@ -40,6 +39,9 @@ const resultUrl = ref('')
 const resultSize = ref(0)
 const resultBlob = ref(null)
 const resultSizeLabel = ref('')
+
+let alive = true
+let timer
 
 const originalMeta = computed(() => {
   if (!source.value) return ''
@@ -57,8 +59,6 @@ const seoPoints = [
   'Download keeps PNG when the source is PNG, otherwise JPEG.',
 ]
 
-let timer
-
 watch(source, () => {
   rotate.value = 0
   flipX.value = false
@@ -75,6 +75,7 @@ watch([source, rotate, flipX, flipY], () => {
 })
 
 onUnmounted(() => {
+  alive = false
   clearTimeout(timer)
   revokeResult()
 })
@@ -85,6 +86,7 @@ function revokeResult() {
   resultSize.value = 0
   resultBlob.value = null
   resultSizeLabel.value = ''
+  clearDraft()
 }
 
 function buildCanvas(item) {
@@ -103,16 +105,19 @@ async function updatePreview() {
     const canvas = buildCanvas(source.value)
     const type = exportTypeFor(source.value)
     const blob = await canvasToBlob(canvas, type, 0.92)
+    if (!alive) return
     if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
     resultBlob.value = blob
     resultUrl.value = URL.createObjectURL(blob)
     resultSize.value = blob.size
     resultSizeLabel.value = `${canvas.width}×${canvas.height}`
+    setDraft(blob, source.value.name)
   } catch {
+    if (!alive) return
     revokeResult()
     status.value = 'Could not transform image.'
   } finally {
-    busy.value = false
+    if (alive) busy.value = false
   }
 }
 
@@ -120,27 +125,12 @@ async function download() {
   if (!source.value) return
   busy.value = true
   try {
-    const canvas = buildCanvas(source.value)
     const type = exportTypeFor(source.value)
-    const blob = resultBlob.value || (await canvasToBlob(canvas, type, 0.92))
+    const blob = resultBlob.value || (await canvasToBlob(buildCanvas(source.value), type, 0.92))
     downloadBlob(blob, `${source.value.name}-rotate.${extFor(type)}`)
   } finally {
     busy.value = false
   }
-}
-
-async function copy() {
-  if (!resultBlob.value) return
-  try {
-    await copyBlob(resultBlob.value)
-    status.value = 'Copied to clipboard.'
-  } catch {
-    status.value = 'Copy is not supported in this browser.'
-  }
-}
-
-function openResult() {
-  if (resultBlob.value) openBlob(resultBlob.value)
 }
 
 function turn(delta) {
@@ -199,14 +189,7 @@ function turn(delta) {
 
         <p class="status">Angle · {{ rotate }}°</p>
 
-        <ResultBar
-          :busy="busy"
-          @download="download"
-          @copy="copy"
-          @open="openResult"
-          @replace="replaceFile"
-          @clear="clear"
-        />
+        <ResultBar :busy="busy" @download="download" @clear="clear" />
         <CrossToolLinks />
         <p v-if="status" class="status">{{ status }}</p>
       </div>

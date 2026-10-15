@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useImageSource } from '@/composables/useImageSource'
 import { tools } from '@/tools'
 import ConvertView from '@/views/ConvertView.vue'
 import CropView from '@/views/CropView.vue'
@@ -6,6 +7,8 @@ import EnhanceView from '@/views/EnhanceView.vue'
 import ResizeView from '@/views/ResizeView.vue'
 import RotateView from '@/views/RotateView.vue'
 import WatermarkView from '@/views/WatermarkView.vue'
+
+const { commitDraft } = useImageSource()
 
 const views = {
   convert: ConvertView,
@@ -30,6 +33,10 @@ const router = createRouter({
   scrollBehavior() {
     return { top: 0 }
   },
+})
+
+router.beforeEach(async (to, from) => {
+  if (to.path !== from.path) await commitDraft()
 })
 
 router.afterEach((to) => {

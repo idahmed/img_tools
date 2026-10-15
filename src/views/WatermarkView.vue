@@ -10,12 +10,10 @@ import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import {
   canvasToBlob,
-  copyBlob,
   downloadBlob,
   exportTypeFor,
   extFor,
   formatBytes,
-  openBlob,
   watermarkImage,
 } from '@/lib/image'
 
@@ -25,7 +23,8 @@ const {
   source,
   error,
   addFiles,
-  replaceFile,
+  setDraft,
+  clearDraft,
   select,
   removeCurrent,
   clear,
@@ -40,6 +39,9 @@ const status = ref('')
 const resultUrl = ref('')
 const resultSize = ref(0)
 const resultBlob = ref(null)
+
+let alive = true
+let timer
 
 const originalMeta = computed(() => {
   if (!source.value) return ''
@@ -65,8 +67,6 @@ const positions = [
   { id: 'center', label: 'Center' },
 ]
 
-let timer
-
 watch([source, text, position, opacity, scale], () => {
   clearTimeout(timer)
   if (!source.value) {
@@ -77,6 +77,7 @@ watch([source, text, position, opacity, scale], () => {
 })
 
 onUnmounted(() => {
+  alive = false
   clearTimeout(timer)
   revokeResult()
 })
@@ -86,6 +87,7 @@ function revokeResult() {
   resultUrl.value = ''
   resultSize.value = 0
   resultBlob.value = null
+  clearDraft()
 }
 
 function buildCanvas(item) {
@@ -105,15 +107,18 @@ async function updatePreview() {
     const canvas = buildCanvas(source.value)
     const type = exportTypeFor(source.value)
     const blob = await canvasToBlob(canvas, type, 0.92)
+    if (!alive) return
     if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
     resultBlob.value = blob
     resultUrl.value = URL.createObjectURL(blob)
     resultSize.value = blob.size
+    setDraft(blob, source.value.name)
   } catch {
+    if (!alive) return
     revokeResult()
     status.value = 'Could not add watermark.'
   } finally {
-    busy.value = false
+    if (alive) busy.value = false
   }
 }
 
@@ -127,20 +132,6 @@ async function download() {
   } finally {
     busy.value = false
   }
-}
-
-async function copy() {
-  if (!resultBlob.value) return
-  try {
-    await copyBlob(resultBlob.value)
-    status.value = 'Copied to clipboard.'
-  } catch {
-    status.value = 'Copy is not supported in this browser.'
-  }
-}
-
-function openResult() {
-  if (resultBlob.value) openBlob(resultBlob.value)
 }
 </script>
 
@@ -198,14 +189,7 @@ function openResult() {
           </label>
         </div>
 
-        <ResultBar
-          :busy="busy"
-          @download="download"
-          @copy="copy"
-          @open="openResult"
-          @replace="replaceFile"
-          @clear="clear"
-        />
+        <ResultBar :busy="busy" @download="download" @clear="clear" />
         <CrossToolLinks />
         <p v-if="status" class="status">{{ status }}</p>
       </div>

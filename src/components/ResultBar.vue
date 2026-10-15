@@ -1,10 +1,13 @@
 <script setup>
+import { useImageSource } from '@/composables/useImageSource'
+
 defineProps({
   busy: { type: Boolean, default: false },
-  canCopy: { type: Boolean, default: true },
 })
 
-defineEmits(['download', 'copy', 'open', 'replace', 'clear'])
+defineEmits(['download', 'clear'])
+
+const { canUndo, undo } = useImageSource()
 </script>
 
 <template>
@@ -12,27 +15,9 @@ defineEmits(['download', 'copy', 'open', 'replace', 'clear'])
     <button type="button" class="btn primary" :disabled="busy" @click="$emit('download')">
       Download
     </button>
-    <button
-      v-if="canCopy"
-      type="button"
-      class="btn"
-      :disabled="busy"
-      @click="$emit('copy')"
-    >
-      Copy
+    <button type="button" class="btn" :disabled="busy || !canUndo" @click="undo">
+      Undo
     </button>
-    <button type="button" class="btn" :disabled="busy" @click="$emit('open')">
-      Open
-    </button>
-    <label class="btn file-btn">
-      Replace
-      <input
-        type="file"
-        accept="image/*"
-        hidden
-        @change="$emit('replace', $event.target.files?.[0]); $event.target.value = ''"
-      >
-    </label>
     <button type="button" class="btn" @click="$emit('clear')">New</button>
   </div>
 </template>

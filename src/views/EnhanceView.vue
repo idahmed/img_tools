@@ -11,11 +11,9 @@ import { useImageSource } from '@/composables/useImageSource'
 import { downloadZip } from '@/lib/batch'
 import {
   canvasToBlob,
-  copyBlob,
   downloadBlob,
   extFor,
   formatBytes,
-  openBlob,
   renderImage,
 } from '@/lib/image'
 
@@ -26,7 +24,8 @@ const {
   count,
   error,
   addFiles,
-  replaceFile,
+  setDraft,
+  clearDraft,
   select,
   removeCurrent,
   clear,
@@ -41,6 +40,9 @@ const status = ref('')
 const resultUrl = ref('')
 const resultSize = ref(0)
 const resultBlob = ref(null)
+
+let alive = true
+let previewTimer
 
 const originalMeta = computed(() => {
   if (!source.value) return ''
@@ -58,8 +60,6 @@ const seoPoints = [
   'All edits run locally — your photos never leave this device.',
 ]
 
-let previewTimer
-
 watch(source, () => {
   revokeResult()
   resetControls()
@@ -72,6 +72,7 @@ watch([brightness, contrast, saturate, sharpen, source], () => {
 })
 
 onUnmounted(() => {
+  alive = false
   clearTimeout(previewTimer)
   revokeResult()
 })
@@ -88,6 +89,7 @@ function revokeResult() {
   resultUrl.value = ''
   resultSize.value = 0
   resultBlob.value = null
+  clearDraft()
 }
 
 function options() {
@@ -112,36 +114,25 @@ async function updatePreview() {
   status.value = ''
   try {
     const { blob } = await buildBlob(source.value)
-    revokeResult()
+    if (!alive) return
+    if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
     resultBlob.value = blob
     resultUrl.value = URL.createObjectURL(blob)
     resultSize.value = blob.size
+    setDraft(blob, source.value.name)
   } catch {
+    if (!alive) return
     revokeResult()
     status.value = 'Could not process image.'
   } finally {
-    busy.value = false
+    if (alive) busy.value = false
   }
 }
 
-async function download() {
+function download() {
   if (!source.value || !resultBlob.value) return
   const type = source.value.type.includes('png') ? 'image/png' : 'image/jpeg'
   downloadBlob(resultBlob.value, `${source.value.name}-enhanced.${extFor(type)}`)
-}
-
-async function copy() {
-  if (!resultBlob.value) return
-  try {
-    await copyBlob(resultBlob.value)
-    status.value = 'Copied to clipboard.'
-  } catch {
-    status.value = 'Copy is not supported in this browser.'
-  }
-}
-
-function openResult() {
-  if (resultBlob.value) openBlob(resultBlob.value)
 }
 
 async function downloadAll() {
@@ -210,14 +201,7 @@ async function downloadAll() {
           <input v-model.number="sharpen" type="range" min="0" max="100" step="1">
         </label>
 
-        <ResultBar
-          :busy="busy"
-          @download="download"
-          @copy="copy"
-          @open="openResult"
-          @replace="replaceFile"
-          @clear="clear"
-        />
+        <ResultBar :busy="busy" @download="download" @clear="clear" />
 
         <div class="actions">
           <button type="button" class="btn" @click="resetControls">Reset edits</button>
