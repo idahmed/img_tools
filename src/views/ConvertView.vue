@@ -21,6 +21,7 @@ import {
   openBlob,
   renderImage,
 } from '@/lib/image'
+import { loadPrefs, savePrefs } from '@/lib/prefs'
 
 const {
   items,
@@ -35,12 +36,13 @@ const {
   clear,
 } = useImageSource()
 
+const prefs = loadPrefs()
 const formats = ref([...BASE_FORMATS])
-const format = ref('image/jpeg')
-const quality = ref(0.9)
-const useTarget = ref(false)
-const targetKb = ref(200)
-const stripMeta = ref(true)
+const format = ref(prefs.format || 'image/jpeg')
+const quality = ref(prefs.quality ?? 0.9)
+const useTarget = ref(!!prefs.useTarget)
+const targetKb = ref(prefs.targetKb || 200)
+const stripMeta = ref(prefs.stripMeta !== false)
 const busy = ref(false)
 const status = ref('')
 const resultUrl = ref('')
@@ -69,9 +71,22 @@ const seoPoints = [
 
 onMounted(async () => {
   formats.value = await availableFormats()
+  if (!formats.value.some((item) => item.id === format.value)) {
+    format.value = 'image/jpeg'
+  }
 })
 
 let previewTimer
+
+watch([format, quality, useTarget, targetKb, stripMeta], () => {
+  savePrefs({
+    format: format.value,
+    quality: quality.value,
+    useTarget: useTarget.value,
+    targetKb: targetKb.value,
+    stripMeta: stripMeta.value,
+  })
+})
 
 watch([source, format, quality, useTarget, targetKb, stripMeta], () => {
   clearTimeout(previewTimer)

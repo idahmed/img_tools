@@ -1,17 +1,12 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { tools } from '@/tools'
 
 const route = useRoute()
 const router = useRouter()
 
-const links = computed(() =>
-  [
-    { path: '/convert', label: 'Convert' },
-    { path: '/resize', label: 'Resize' },
-    { path: '/enhance', label: 'Enhance' },
-  ].filter((item) => item.path !== route.path),
-)
+const links = computed(() => tools.filter((tool) => tool.path !== route.path))
 </script>
 
 <template>

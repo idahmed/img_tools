@@ -1,6 +1,6 @@
 # img_tools
 
-Image tools by sessea — convert, resize, and enhance in the browser. No backend.
+Image tools by sessea — convert, resize, enhance, rotate, crop, and watermark in the browser. No backend.
 
 ```bash
 npm install
@@ -12,5 +12,8 @@ Routes:
 - `/convert`
 - `/resize`
 - `/enhance`
+- `/rotate`
+- `/crop`
+- `/watermark`
 
 Features: JPEG / PNG / WebP / AVIF convert, batch ZIP export, target file size, before/after compare, dark mode, PWA.

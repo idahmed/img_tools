@@ -1,21 +1,16 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import HubLinks from '@/components/HubLinks.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import { loadTheme, saveTheme } from '@/lib/prefs'
+import { tools } from '@/tools'
 
 const route = useRoute()
 const router = useRouter()
 const { clear, addFiles } = useImageSource()
 const theme = ref(loadTheme())
 const isDark = computed(() => theme.value === 'dark')
-
-const tools = [
-  { path: '/convert', label: 'Convert', key: '1' },
-  { path: '/resize', label: 'Resize', key: '2' },
-  { path: '/enhance', label: 'Enhance', key: '3' },
-]
-
 const activePath = computed(() => route.path)
 
 watch(theme, (value) => {
@@ -34,9 +29,8 @@ function onKeydown(event) {
   const tag = document.activeElement?.tagName
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
 
-  if (event.key === '1') router.push('/convert')
-  if (event.key === '2') router.push('/resize')
-  if (event.key === '3') router.push('/enhance')
+  const match = tools.find((tool) => tool.shortcut === event.key)
+  if (match) router.push(match.path)
   if (event.key === 'o' || event.key === 'O') {
     event.preventDefault()
     document.getElementById('global-open')?.click()
@@ -81,7 +75,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             </svg>
           </button>
           <h1>{{ route.meta.title || 'Image tools' }}</h1>
-          <p>by sessea</p>
+          <HubLinks />
         </header>
 
         <nav class="tabs" aria-label="Tools">
@@ -91,7 +85,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             type="button"
             class="tab"
             :class="{ active: activePath === tool.path }"
-            :title="`Shortcut ${tool.key}`"
+            :title="`Shortcut ${tool.shortcut}`"
             @click="router.push(tool.path)"
           >
             {{ tool.label }}
@@ -99,7 +93,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         </nav>
 
         <p class="tips">
-          Shortcuts: 1 Convert · 2 Resize · 3 Enhance · O Open files · Esc Clear
+          Shortcuts: 1–6 tools · O Open · Esc Clear
         </p>
 
         <RouterView />

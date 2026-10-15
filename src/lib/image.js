@@ -60,6 +60,78 @@ export function renderImage(source, options = {}) {
   return canvas
 }
 
+/** rotate: 0 | 90 | 180 | 270 (clockwise). */
+export function transformImage(source, { rotate = 0, flipX = false, flipY = false } = {}) {
+  const turns = ((Math.round(rotate / 90) * 90) % 360 + 360) % 360
+  const swap = turns === 90 || turns === 270
+  const width = swap ? source.height : source.width
+  const height = swap ? source.width : source.height
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, width)
+  canvas.height = Math.max(1, height)
+  const ctx = canvas.getContext('2d')
+  ctx.translate(canvas.width / 2, canvas.height / 2)
+  ctx.rotate((turns * Math.PI) / 180)
+  ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1)
+  ctx.drawImage(source.image, -source.width / 2, -source.height / 2)
+  return canvas
+}
+
+/** Crop in source pixels: x, y, width, height. */
+export function cropImage(source, box) {
+  const x = Math.max(0, Math.min(source.width - 1, Math.round(box.x || 0)))
+  const y = Math.max(0, Math.min(source.height - 1, Math.round(box.y || 0)))
+  const width = Math.max(1, Math.min(source.width - x, Math.round(box.width || source.width)))
+  const height = Math.max(1, Math.min(source.height - y, Math.round(box.height || source.height)))
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  canvas.getContext('2d').drawImage(source.image, x, y, width, height, 0, 0, width, height)
+  return canvas
+}
+
+export function exportTypeFor(source) {
+  return source.type.includes('png') ? 'image/png' : 'image/jpeg'
+}
+
+/** Text watermark. position: tl | tr | bl | br | center */
+export function watermarkImage(source, {
+  text = 'sessea',
+  position = 'br',
+  opacity = 0.5,
+  scale = 0.06,
+} = {}) {
+  const canvas = document.createElement('canvas')
+  canvas.width = source.width
+  canvas.height = source.height
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(source.image, 0, 0)
+
+  const label = String(text || 'sessea').slice(0, 48)
+  const size = Math.max(14, Math.round(Math.min(source.width, source.height) * scale))
+  const pad = size * 0.7
+  ctx.font = `700 ${size}px Syne, sans-serif`
+  ctx.textBaseline = 'middle'
+  const width = ctx.measureText(label).width
+  const height = size
+
+  let x = pad
+  let y = pad + height / 2
+  if (position === 'tr' || position === 'br') x = source.width - pad - width
+  if (position === 'bl' || position === 'br') y = source.height - pad - height / 2
+  if (position === 'center') {
+    x = (source.width - width) / 2
+    y = source.height / 2
+  }
+
+  ctx.lineWidth = Math.max(1, size / 14)
+  ctx.strokeStyle = `rgba(0, 0, 0, ${opacity * 0.55})`
+  ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`
+  ctx.strokeText(label, x, y)
+  ctx.fillText(label, x, y)
+  return canvas
+}
+
 function sharpenCanvas(ctx, width, height, amount) {
   const strength = Math.min(1, amount / 100)
   const weight = 1 + strength * 4

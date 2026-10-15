@@ -141,13 +141,20 @@ select {
   line-height: 1.15;
 }
 
-.brand p {
+.brand p,
+.hub {
+  display: inline-block;
   margin: 0.35rem 0 0;
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  text-decoration: none;
+}
+
+.hub:hover {
+  color: var(--ink);
 }
 
 .theme-toggle {
@@ -178,7 +185,7 @@ select {
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(4.4rem, 1fr));
   gap: 0.35rem;
   padding: 0.3rem;
   border: 1px solid var(--line);
@@ -438,6 +445,7 @@ select {
 }
 
 .field input[type='number'],
+.field input[type='text'],
 .field select {
   width: 100%;
   min-height: 2.6rem;
