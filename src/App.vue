@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import FooterLinks from '@/components/FooterLinks.vue'
 import HubLinks from '@/components/HubLinks.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import { loadTheme, saveTheme } from '@/lib/prefs'
@@ -12,6 +13,7 @@ const { clear, addFiles, undo, canUndo } = useImageSource()
 const theme = ref(loadTheme())
 const isDark = computed(() => theme.value === 'dark')
 const activePath = computed(() => route.path)
+const isInfoPage = computed(() => route.meta?.isInfo === true)
 
 watch(theme, (value) => {
   saveTheme(value)
@@ -85,7 +87,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           <HubLinks />
         </header>
 
-        <nav class="tabs" aria-label="Tools">
+        <nav v-if="!isInfoPage" class="tabs" aria-label="Tools">
           <button
             v-for="tool in tools"
             :key="tool.path"
@@ -99,11 +101,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           </button>
         </nav>
 
-        <p class="tips">
+        <p v-if="!isInfoPage" class="tips">
           Shortcuts: 1–6 tools · O Open · Z Undo · Esc Clear
         </p>
 
         <RouterView />
+
+        <FooterLinks />
       </main>
 
       <div class="ad ad-banner" aria-label="Advertisement">
