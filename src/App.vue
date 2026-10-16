@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import AdUnit from '@/components/AdUnit.vue'
 import HubLinks from '@/components/HubLinks.vue'
 import InfoContent from '@/components/InfoContent.vue'
 import InfoModal from '@/components/InfoModal.vue'
@@ -80,7 +81,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 <template>
   <div class="shell">
     <aside class="ad ad-rail" aria-label="Advertisement">
-      <div class="ad-slot ad-slot-rail">Ad</div>
+      <div class="ad-slot ad-slot-rail" aria-label="Advertisement"><AdUnit /></div>
     </aside>
 
     <div class="app">
@@ -147,12 +148,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
       </main>
 
       <div class="ad ad-banner" aria-label="Advertisement">
-        <div class="ad-slot ad-slot-banner">Ad</div>
+        <div class="ad-slot ad-slot-banner" aria-label="Advertisement"><AdUnit /></div>
       </div>
     </div>
 
     <aside class="ad ad-rail" aria-label="Advertisement">
-      <div class="ad-slot ad-slot-rail">Ad</div>
+      <div class="ad-slot ad-slot-rail" aria-label="Advertisement"><AdUnit /></div>
     </aside>
 
     <label class="sr-only">

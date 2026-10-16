@@ -8,7 +8,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'robots.txt', 'sitemap.xml'],
+      includeAssets: ['favicon.svg', 'ads.txt', 'robots.txt', 'sitemap.xml'],
       manifest: {
         name: 'Image Tools Online by sessea',
         short_name: 'img tools',
