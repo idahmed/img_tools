@@ -9,6 +9,7 @@ import ResultBar from '@/components/ResultBar.vue'
 import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import { downloadZip } from '@/lib/batch'
+import { getTool } from '@/tools'
 import {
   canvasToBlob,
   downloadBlob,
@@ -69,6 +70,9 @@ const seoPoints = [
   'Keep aspect ratio locked to avoid stretched images.',
   'Use target file size when you need an image under a KB limit.',
 ]
+
+const seoFaq = getTool('resize')?.faq ?? []
+
 
 watch(source, (value) => {
   revokeResult()
@@ -288,6 +292,6 @@ async function downloadAll() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb title="Resize and compress images" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" title="Resize and compress images" :points="seoPoints" />
   </section>
 </template>

@@ -9,6 +9,7 @@ import ResultBar from '@/components/ResultBar.vue'
 import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import { downloadZip } from '@/lib/batch'
+import { getTool } from '@/tools'
 import {
   canvasToBlob,
   downloadBlob,
@@ -59,6 +60,9 @@ const seoPoints = [
   'Add light sharpening to make details look clearer.',
   'All edits run locally — your photos never leave this device.',
 ]
+
+const seoFaq = getTool('enhance')?.faq ?? []
+
 
 watch(source, () => {
   revokeResult()
@@ -222,6 +226,6 @@ async function downloadAll() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb title="Enhance photos online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" title="Enhance photos online" :points="seoPoints" />
   </section>
 </template>

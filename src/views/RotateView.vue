@@ -8,6 +8,7 @@ import QueueBar from '@/components/QueueBar.vue'
 import ResultBar from '@/components/ResultBar.vue'
 import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
+import { getTool } from '@/tools'
 import {
   canvasToBlob,
   downloadBlob,
@@ -58,6 +59,9 @@ const seoPoints = [
   'Preview updates instantly — nothing is uploaded.',
   'Download keeps PNG when the source is PNG, otherwise JPEG.',
 ]
+
+const seoFaq = getTool('rotate')?.faq ?? []
+
 
 watch(source, () => {
   rotate.value = 0
@@ -196,6 +200,6 @@ function turn(delta) {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb title="Rotate images online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" title="Rotate images online" :points="seoPoints" />
   </section>
 </template>

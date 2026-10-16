@@ -20,6 +20,7 @@ import {
   renderImage,
 } from '@/lib/image'
 import { loadPrefs, savePrefs } from '@/lib/prefs'
+import { getTool } from '@/tools'
 
 const {
   items,
@@ -70,6 +71,9 @@ const seoPoints = [
   'Lower JPEG/WebP/AVIF quality to shrink file size for the web or email.',
   'Metadata is removed when images are re-encoded in your browser.',
 ]
+
+const seoFaq = getTool('convert')?.faq ?? []
+
 
 onMounted(async () => {
   formats.value = await availableFormats()
@@ -250,6 +254,6 @@ async function downloadAll() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb title="Convert images online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" title="Convert images online" :points="seoPoints" />
   </section>
 </template>

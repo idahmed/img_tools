@@ -8,15 +8,18 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.svg', 'robots.txt', 'sitemap.xml'],
       manifest: {
-        name: 'Image tools by sessea',
+        name: 'Image Tools Online by sessea',
         short_name: 'img tools',
-        description: 'Convert, resize, and enhance images in your browser.',
+        description:
+          'Free browser image tools to convert, resize, crop, rotate, enhance, and watermark privately.',
         theme_color: '#1c1c1c',
         background_color: '#f3f3f3',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/convert',
+        lang: 'en',
+        categories: ['utilities', 'multimedia'],
         icons: [
           {
             src: '/favicon.svg',
@@ -27,7 +30,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,woff,woff2,ico}'],
+        globPatterns: ['**/*.{js,css,html,svg,woff,woff2,ico,txt,xml}'],
       },
     }),
   ],

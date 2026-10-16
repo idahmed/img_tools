@@ -1,8 +1,9 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import FooterLinks from '@/components/FooterLinks.vue'
 import HubLinks from '@/components/HubLinks.vue'
+import InfoContent from '@/components/InfoContent.vue'
+import InfoModal from '@/components/InfoModal.vue'
 import { useImageSource } from '@/composables/useImageSource'
 import { loadTheme, saveTheme } from '@/lib/prefs'
 import { tools } from '@/tools'
@@ -13,7 +14,13 @@ const { clear, addFiles, undo, canUndo } = useImageSource()
 const theme = ref(loadTheme())
 const isDark = computed(() => theme.value === 'dark')
 const activePath = computed(() => route.path)
-const isInfoPage = computed(() => route.meta?.isInfo === true)
+const info = ref(null)
+
+const infoTitles = {
+  docs: 'How to Use',
+  terms: 'Terms of Service',
+  privacy: 'Privacy Policy',
+}
 
 watch(theme, (value) => {
   saveTheme(value)
@@ -26,9 +33,29 @@ function toggleTheme() {
   theme.value = theme.value === 'dark' ? 'light' : 'dark'
 }
 
+function openInfo(kind) {
+  info.value = kind
+}
+
+function closeInfo() {
+  info.value = null
+}
+
 function onKeydown(event) {
   const tag = document.activeElement?.tagName
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
+
+  if (event.key === 'Escape') {
+    if (info.value) {
+      event.preventDefault()
+      closeInfo()
+      return
+    }
+    clear()
+    return
+  }
+
+  if (info.value) return
 
   if (event.key.toLowerCase() === 'z' && !event.altKey && !event.shiftKey) {
     if (event.metaKey || event.ctrlKey) event.preventDefault()
@@ -44,7 +71,6 @@ function onKeydown(event) {
     event.preventDefault()
     document.getElementById('global-open')?.click()
   }
-  if (event.key === 'Escape') clear()
 }
 
 onMounted(() => window.addEventListener('keydown', onKeydown))
@@ -83,11 +109,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
               />
             </svg>
           </button>
-          <h1>{{ route.meta.title || 'Image tools' }}</h1>
+          <h1>{{ route.meta.heading || route.meta.label || 'Image tools' }}</h1>
           <HubLinks />
         </header>
 
-        <nav v-if="!isInfoPage" class="tabs" aria-label="Tools">
+        <nav class="tabs" aria-label="Tools">
           <button
             v-for="tool in tools"
             :key="tool.path"
@@ -101,13 +127,25 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           </button>
         </nav>
 
-        <p v-if="!isInfoPage" class="tips">
+        <p class="tips">
           Shortcuts: 1–6 tools · O Open · Z Undo · Esc Clear
         </p>
 
         <RouterView />
 
-        <FooterLinks />
+        <footer class="footer">
+          <nav class="footer-links">
+            <button type="button" class="footer-link" @click="openInfo('docs')">
+              How to Use
+            </button>
+            <button type="button" class="footer-link" @click="openInfo('terms')">
+              Terms
+            </button>
+            <button type="button" class="footer-link" @click="openInfo('privacy')">
+              Privacy
+            </button>
+          </nav>
+        </footer>
       </main>
 
       <div class="ad ad-banner" aria-label="Advertisement">
@@ -133,5 +171,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         }"
       >
     </label>
+
+    <InfoModal
+      :open="Boolean(info)"
+      :title="info ? infoTitles[info] : ''"
+      @close="closeInfo"
+    >
+      <InfoContent v-if="info" :kind="info" />
+    </InfoModal>
   </div>
 </template>

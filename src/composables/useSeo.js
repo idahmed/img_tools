@@ -1,6 +1,4 @@
-import { HUB_URL } from '@/lib/sites'
-
-const SITE_NAME = 'sessea Image Tools'
+import { SITE_NAME, SITE_URL } from '@/lib/sites'
 
 export function useSeo() {
   function updateMeta(name, content, property = false) {
@@ -21,19 +19,24 @@ export function useSeo() {
       el.setAttribute('rel', 'canonical')
       document.head.appendChild(el)
     }
-    el.setAttribute('href', `${HUB_URL}${path}`)
+    el.setAttribute('href', `${SITE_URL}${path}`)
   }
 
   function setPageSeo({ title, description, path }) {
     const fullTitle = `${title} | ${SITE_NAME}`
+    const url = `${SITE_URL}${path}`
 
     document.title = fullTitle
     updateMeta('description', description)
+    updateMeta('og:type', 'website', true)
+    updateMeta('og:site_name', SITE_NAME, true)
     updateMeta('og:title', title, true)
     updateMeta('og:description', description, true)
-    updateMeta('og:url', `${HUB_URL}${path}`, true)
+    updateMeta('og:url', url, true)
+    updateMeta('twitter:card', 'summary')
     updateMeta('twitter:title', title)
     updateMeta('twitter:description', description)
+    updateMeta('twitter:url', url)
     updateCanonical(path)
   }
 

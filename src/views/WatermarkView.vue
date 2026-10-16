@@ -8,6 +8,7 @@ import QueueBar from '@/components/QueueBar.vue'
 import ResultBar from '@/components/ResultBar.vue'
 import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
+import { getTool } from '@/tools'
 import {
   canvasToBlob,
   downloadBlob,
@@ -58,6 +59,9 @@ const seoPoints = [
   'Adjust size and opacity to keep it subtle or bold.',
   'Runs locally — your images never leave this device.',
 ]
+
+const seoFaq = getTool('watermark')?.faq ?? []
+
 
 const positions = [
   { id: 'tl', label: 'Top left' },
@@ -196,6 +200,6 @@ async function download() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb title="Watermark images online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" title="Watermark images online" :points="seoPoints" />
   </section>
 </template>

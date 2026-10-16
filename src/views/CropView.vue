@@ -8,6 +8,7 @@ import QueueBar from '@/components/QueueBar.vue'
 import ResultBar from '@/components/ResultBar.vue'
 import SeoBlurb from '@/components/SeoBlurb.vue'
 import { useImageSource } from '@/composables/useImageSource'
+import { getTool } from '@/tools'
 import {
   canvasToBlob,
   cropImage,
@@ -60,6 +61,9 @@ const seoPoints = [
   'Use aspect presets for square, 4:3, or 16:9 frames.',
   'Everything runs locally in your browser.',
 ]
+
+const seoFaq = getTool('crop')?.faq ?? []
+
 
 watch(source, () => {
   left.value = 0
@@ -232,6 +236,6 @@ async function download() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb title="Crop images online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" title="Crop images online" :points="seoPoints" />
   </section>
 </template>
