@@ -127,9 +127,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           </button>
         </nav>
 
-        <p class="tips">
-          Shortcuts: 1–6 tools · O Open · Z Undo · Esc Clear
-        </p>
+        <p class="tips">1–6 tools · O open · Z undo · Esc clear</p>
 
         <RouterView />
 
