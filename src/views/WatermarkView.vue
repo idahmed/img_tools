@@ -54,13 +54,12 @@ const resultMeta = computed(() => {
   return formatBytes(resultSize.value)
 })
 
-const seoPoints = [
-  'Add a simple text watermark in the corner or center.',
-  'Adjust size and opacity to keep it subtle or bold.',
-  'Runs locally — your images never leave this device.',
-]
-
-const seoFaq = getTool('watermark')?.faq ?? []
+const tool = getTool('watermark')
+const seoPoints = tool?.points ?? []
+const seoFaq = tool?.faq ?? []
+const seoLede = tool?.lede ?? ''
+const seoSteps = tool?.steps ?? []
+const seoNote = tool?.note ?? ''
 
 
 const positions = [
@@ -200,6 +199,6 @@ async function download() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb :faq="seoFaq" title="Watermark images online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" :title="tool?.heading || tool?.title || 'Tool'" :lede="seoLede" :points="seoPoints" :steps="seoSteps" :note="seoNote" />
   </section>
 </template>

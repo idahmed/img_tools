@@ -5,6 +5,7 @@ import HubLinks from '@/components/HubLinks.vue'
 import InfoContent from '@/components/InfoContent.vue'
 import InfoModal from '@/components/InfoModal.vue'
 import { useImageSource } from '@/composables/useImageSource'
+import { HUB_URL } from '@/lib/sites'
 import { loadTheme, saveTheme } from '@/lib/prefs'
 import { tools } from '@/tools'
 
@@ -14,6 +15,7 @@ const { clear, addFiles, undo, canUndo } = useImageSource()
 const theme = ref(loadTheme())
 const isDark = computed(() => theme.value === 'dark')
 const activePath = computed(() => route.path)
+const isLegal = computed(() => Boolean(route.meta.legal))
 const info = ref(null)
 
 const infoTitles = {
@@ -109,7 +111,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           <HubLinks />
         </header>
 
-        <nav class="tabs" aria-label="Tools">
+        <nav v-if="!isLegal" class="tabs" aria-label="Tools">
           <button
             v-for="tool in tools"
             :key="tool.path"
@@ -123,21 +125,19 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
           </button>
         </nav>
 
-        <p class="tips">1–6 tools · O open · Z undo · Esc clear</p>
+        <p v-if="!isLegal" class="tips">1–6 tools · O open · Z undo · Esc clear</p>
 
         <RouterView />
 
         <footer class="footer">
           <nav class="footer-links">
-            <button type="button" class="footer-link" @click="openInfo('docs')">
+            <button v-if="!isLegal" type="button" class="footer-link" @click="openInfo('docs')">
               How to Use
             </button>
-            <button type="button" class="footer-link" @click="openInfo('terms')">
-              Terms
-            </button>
-            <button type="button" class="footer-link" @click="openInfo('privacy')">
-              Privacy
-            </button>
+            <RouterLink class="footer-link" to="/privacy">Privacy</RouterLink>
+            <RouterLink class="footer-link" to="/terms">Terms</RouterLink>
+            <a class="footer-link" :href="`${HUB_URL}/about`">About</a>
+            <a class="footer-link" :href="`${HUB_URL}/contact`">Contact</a>
           </nav>
         </footer>
       </main>

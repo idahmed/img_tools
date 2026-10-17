@@ -66,13 +66,12 @@ const showQuality = computed(
   () => format.value !== 'image/png' && !useTarget.value,
 )
 
-const seoPoints = [
-  'Convert PNG, JPG, WebP, and AVIF without uploading files to a server.',
-  'Lower JPEG/WebP/AVIF quality to shrink file size for the web or email.',
-  'Metadata is removed when images are re-encoded in your browser.',
-]
-
-const seoFaq = getTool('convert')?.faq ?? []
+const tool = getTool('convert')
+const seoPoints = tool?.points ?? []
+const seoFaq = tool?.faq ?? []
+const seoLede = tool?.lede ?? ''
+const seoSteps = tool?.steps ?? []
+const seoNote = tool?.note ?? ''
 
 
 onMounted(async () => {
@@ -254,6 +253,6 @@ async function downloadAll() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb :faq="seoFaq" title="Convert images online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" :title="tool?.heading || tool?.title || 'Tool'" :lede="seoLede" :points="seoPoints" :steps="seoSteps" :note="seoNote" />
   </section>
 </template>

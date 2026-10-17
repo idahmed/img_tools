@@ -65,13 +65,12 @@ const resultMeta = computed(() => {
   return `${outWidth.value}×${outHeight.value} · ${formatBytes(resultSize.value)}`
 })
 
-const seoPoints = [
-  'Compress and resize photos for websites, forms, and messaging apps.',
-  'Keep aspect ratio locked to avoid stretched images.',
-  'Use target file size when you need an image under a KB limit.',
-]
-
-const seoFaq = getTool('resize')?.faq ?? []
+const tool = getTool('resize')
+const seoPoints = tool?.points ?? []
+const seoFaq = tool?.faq ?? []
+const seoLede = tool?.lede ?? ''
+const seoSteps = tool?.steps ?? []
+const seoNote = tool?.note ?? ''
 
 
 watch(source, (value) => {
@@ -292,6 +291,6 @@ async function downloadAll() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb :faq="seoFaq" title="Resize and compress images" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" :title="tool?.heading || tool?.title || 'Tool'" :lede="seoLede" :points="seoPoints" :steps="seoSteps" :note="seoNote" />
   </section>
 </template>

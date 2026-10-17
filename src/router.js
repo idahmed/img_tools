@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useImageSource } from '@/composables/useImageSource'
 import { useSeo } from '@/composables/useSeo'
 import { tools } from '@/tools'
+import PrivacyView from '@/views/PrivacyView.vue'
+import TermsView from '@/views/TermsView.vue'
 import ConvertView from '@/views/ConvertView.vue'
 import CropView from '@/views/CropView.vue'
 import EnhanceView from '@/views/EnhanceView.vue'
@@ -24,6 +26,28 @@ const views = {
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: PrivacyView,
+      meta: {
+        title: 'Privacy Policy — Image tools | sessea',
+        description: 'Privacy policy for sessea image tools. Edits stay in your browser. Ads may use partner cookies.',
+        heading: 'Privacy',
+        legal: true,
+      },
+    },
+    {
+      path: '/terms',
+      name: 'terms',
+      component: TermsView,
+      meta: {
+        title: 'Terms of Service — Image tools | sessea',
+        description: 'Terms of Service for free browser image tools on img.sessea.com by sessea.',
+        heading: 'Terms',
+        legal: true,
+      },
+    },
     { path: '/', redirect: '/convert' },
     ...tools.map((tool) => ({
       path: tool.path,

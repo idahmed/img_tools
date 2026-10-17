@@ -54,13 +54,12 @@ const resultMeta = computed(() => {
   return `${resultSizeLabel.value} · ${formatBytes(resultSize.value)}`
 })
 
-const seoPoints = [
-  'Rotate images by 90° steps or flip them horizontally and vertically.',
-  'Preview updates instantly — nothing is uploaded.',
-  'Download keeps PNG when the source is PNG, otherwise JPEG.',
-]
-
-const seoFaq = getTool('rotate')?.faq ?? []
+const tool = getTool('rotate')
+const seoPoints = tool?.points ?? []
+const seoFaq = tool?.faq ?? []
+const seoLede = tool?.lede ?? ''
+const seoSteps = tool?.steps ?? []
+const seoNote = tool?.note ?? ''
 
 
 watch(source, () => {
@@ -200,6 +199,6 @@ function turn(delta) {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb :faq="seoFaq" title="Rotate images online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" :title="tool?.heading || tool?.title || 'Tool'" :lede="seoLede" :points="seoPoints" :steps="seoSteps" :note="seoNote" />
   </section>
 </template>

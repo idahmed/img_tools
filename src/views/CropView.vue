@@ -56,13 +56,12 @@ const resultMeta = computed(() => {
   return `${outLabel.value} · ${formatBytes(resultSize.value)}`
 })
 
-const seoPoints = [
-  'Crop by trimming edges — keep what matters.',
-  'Use aspect presets for square, 4:3, or 16:9 frames.',
-  'Everything runs locally in your browser.',
-]
-
-const seoFaq = getTool('crop')?.faq ?? []
+const tool = getTool('crop')
+const seoPoints = tool?.points ?? []
+const seoFaq = tool?.faq ?? []
+const seoLede = tool?.lede ?? ''
+const seoSteps = tool?.steps ?? []
+const seoNote = tool?.note ?? ''
 
 
 watch(source, () => {
@@ -236,6 +235,6 @@ async function download() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb :faq="seoFaq" title="Crop images online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" :title="tool?.heading || tool?.title || 'Tool'" :lede="seoLede" :points="seoPoints" :steps="seoSteps" :note="seoNote" />
   </section>
 </template>

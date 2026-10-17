@@ -11,6 +11,10 @@ export const tools = [
     title: 'Free Image Converter - PNG, JPG, WebP, AVIF',
     description:
       'Convert images between PNG, JPG, WebP, and AVIF formats for free. Adjust quality, compress files, and strip metadata. No upload required.',
+    lede: 'Convert photos between common web formats without uploading them to a remote converter.',
+    points: ['Switch between PNG, JPG, WebP, and AVIF when supported.', 'Tune quality for smaller files before you download.', 'Conversion runs locally in your browser.'],
+    steps: ['Open or drop an image.', 'Choose an output format and quality.', 'Download the converted file to your device.'],
+    note: 'Keep your original file; treat the download as an export.',
     shortcut: '1',
     faq: [
       { q: 'Is this image converter free?', a: 'Yes. Free with no account required.' },
@@ -26,6 +30,10 @@ export const tools = [
     title: 'Free Image Resizer - Resize Photos Online',
     description:
       'Resize images to any dimension for free. Scale by percentage or exact pixels while maintaining aspect ratio. Works in your browser.',
+    lede: 'Change image dimensions by exact pixels or percentage while keeping work on your device.',
+    points: ['Scale by pixels or percent.', 'Lock aspect ratio to avoid stretching.', 'No upload to sessea servers.'],
+    steps: ['Open an image.', 'Set width, height, or scale.', 'Download the resized result.'],
+    note: 'Very large images are limited by browser memory.',
     shortcut: '2',
     faq: [
       { q: 'Can I resize photos by pixels or percent?', a: 'Yes. Enter exact size or scale by percentage.' },
@@ -40,6 +48,10 @@ export const tools = [
     title: 'Free Image Enhancer - Adjust Brightness & Contrast',
     description:
       'Enhance images by adjusting brightness, contrast, and saturation. Improve photo quality instantly in your browser for free.',
+    lede: 'Adjust brightness, contrast, and saturation for a quick local photo polish.',
+    points: ['Preview slider changes instantly.', 'Download only when you like the result.', 'Edits stay in the browser tab.'],
+    steps: ['Open a photo.', 'Move the enhance sliders.', 'Download the adjusted image.'],
+    note: 'Enhancement is a simple correction tool, not a full studio.',
     shortcut: '3',
     faq: [
       { q: 'Can I adjust brightness and contrast online?', a: 'Yes. Use the sliders and download the result.' },
@@ -54,6 +66,10 @@ export const tools = [
     title: 'Free Image Rotator - Rotate & Flip Photos',
     description:
       'Rotate images 90° or any custom angle. Flip photos horizontally or vertically. Free browser-based tool with instant preview.',
+    lede: 'Rotate or flip images locally for straight horizons and mirrored layouts.',
+    points: ['Rotate by common angles or a custom degree.', 'Flip horizontally or vertically.', 'Processing stays on your device.'],
+    steps: ['Open an image.', 'Choose rotate or flip.', 'Download the result.'],
+    note: 'Combine with crop when you need a tighter frame.',
     shortcut: '4',
     faq: [
       { q: 'Can I rotate or flip images online?', a: 'Yes. Rotate by degrees or flip horizontally/vertically.' },
@@ -68,6 +84,10 @@ export const tools = [
     title: 'Free Image Cropper - Crop Photos Online',
     description:
       'Crop images to any size or aspect ratio for free. Remove unwanted areas from photos instantly. No software installation needed.',
+    lede: 'Crop to a free region or common aspect ratios without sending the photo to a server.',
+    points: ['Drag to select the region you need.', 'Use aspect presets when helpful.', 'Cropping is local and private.'],
+    steps: ['Open an image.', 'Set the crop area.', 'Download the cropped image.'],
+    note: 'Keep the original if you may need pixels outside the crop later.',
     shortcut: '5',
     faq: [
       { q: 'Can I crop to a custom aspect ratio?', a: 'Yes. Use free crop or common aspect presets.' },
@@ -82,6 +102,10 @@ export const tools = [
     title: 'Free Image Watermark - Add Text or Logo',
     description:
       'Add text or image watermarks to protect your photos. Customize position, opacity, and size. Free and private watermarking tool.',
+    lede: 'Add text or a logo mark locally to discourage casual reuse of your photos.',
+    points: ['Place text or a logo watermark.', 'Control opacity, size, and position.', 'Files never leave your browser for this step.'],
+    steps: ['Open an image.', 'Add text or a logo and position it.', 'Download the watermarked file.'],
+    note: 'Watermarks deter casual reuse; they are not strong DRM.',
     shortcut: '6',
     faq: [
       { q: 'Can I add a text or logo watermark?', a: 'Yes. Enter text or upload a logo, then place and download.' },

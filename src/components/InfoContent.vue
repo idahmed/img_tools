@@ -80,7 +80,7 @@ defineProps({
         <h3>7. Contact</h3>
         <p>
           Questions:
-          <a href="https://tools.sessea.com" target="_blank" rel="noopener">tools.sessea.com</a>
+          <a href="https://sessea.com" target="_blank" rel="noopener">sessea.com</a>
         </p>
       </article>
       <p class="info-date">Last updated: October 2026</p>
@@ -115,7 +115,7 @@ defineProps({
         <h3>Contact</h3>
         <p>
           Privacy questions:
-          <a href="https://tools.sessea.com" target="_blank" rel="noopener">tools.sessea.com</a>
+          <a href="https://sessea.com" target="_blank" rel="noopener">sessea.com</a>
         </p>
       </article>
       <p class="info-date">Last updated: October 2026</p>

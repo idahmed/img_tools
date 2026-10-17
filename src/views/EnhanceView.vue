@@ -55,13 +55,12 @@ const resultMeta = computed(() => {
   return formatBytes(resultSize.value)
 })
 
-const seoPoints = [
-  'Improve dull photos with brightness, contrast, and saturation controls.',
-  'Add light sharpening to make details look clearer.',
-  'All edits run locally — your photos never leave this device.',
-]
-
-const seoFaq = getTool('enhance')?.faq ?? []
+const tool = getTool('enhance')
+const seoPoints = tool?.points ?? []
+const seoFaq = tool?.faq ?? []
+const seoLede = tool?.lede ?? ''
+const seoSteps = tool?.steps ?? []
+const seoNote = tool?.note ?? ''
 
 
 watch(source, () => {
@@ -226,6 +225,6 @@ async function downloadAll() {
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <SeoBlurb :faq="seoFaq" title="Enhance photos online" :points="seoPoints" />
+    <SeoBlurb :faq="seoFaq" :title="tool?.heading || tool?.title || 'Tool'" :lede="seoLede" :points="seoPoints" :steps="seoSteps" :note="seoNote" />
   </section>
 </template>
