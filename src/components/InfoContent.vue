@@ -35,7 +35,7 @@ defineProps({
           <li><strong>Enhance</strong> — brightness, contrast, saturation</li>
           <li><strong>Rotate</strong> — rotate and flip</li>
           <li><strong>Crop</strong> — free or aspect presets</li>
-          <li><strong>Mark</strong> — text or logo watermark</li>
+          <li><strong>Mark</strong> — text watermark</li>
         </ul>
       </article>
       <article>

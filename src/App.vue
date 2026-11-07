@@ -136,6 +136,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             </button>
             <RouterLink class="footer-link" to="/privacy">Privacy</RouterLink>
             <RouterLink class="footer-link" to="/terms">Terms</RouterLink>
+            <a class="footer-link" :href="`${HUB_URL}/tools/image`">Guide</a>
             <a class="footer-link" :href="`${HUB_URL}/about`">About</a>
             <a class="footer-link" :href="`${HUB_URL}/contact`">Contact</a>
           </nav>
